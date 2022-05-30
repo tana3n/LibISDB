@@ -162,6 +162,9 @@ bool ViewerEngine::IsSelectableService(int Index) const
 	if (m_pAnalyzer == nullptr)
 		return false;
 
+	if (m_pAnalyzer->GetDataCarrouselESCount(Index) > 0)
+		return true;
+
 	if ((Index < 0) || (Index >= m_pAnalyzer->GetServiceCount()))
 		return false;
 
