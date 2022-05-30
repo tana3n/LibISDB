@@ -40,6 +40,12 @@ namespace LibISDB::DirectShow
 			CHANNEL_2_R
 		};
 		enum {
+			CHANNEL_4_L,
+			CHANNEL_4_R,
+			CHANNEL_4_C,
+			CHANNEL_4_MS
+		};
+		enum {
 			CHANNEL_6_FL,
 			CHANNEL_6_FR,
 			CHANNEL_6_FC,

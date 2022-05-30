@@ -67,7 +67,7 @@ bool ADTSFrame::ParseHeader()
 		return false;	// 未定義のプロファイル
 	if (m_Header.SamplingFreqIndex > 0x0B)
 		return false;	// 未定義のサンプリング周波数
-	if ((m_Header.ChannelConfig >= 3) && (m_Header.ChannelConfig != 6))
+	if ((m_Header.ChannelConfig >= 3) && (m_Header.ChannelConfig != 6) && (m_Header.ChannelConfig != 4))
 		return false;	// チャンネル数異常
 	if (m_Header.FrameLength < (m_Header.ProtectionAbsent ? 7 : 9))
 		return false;	// フレーム長異常

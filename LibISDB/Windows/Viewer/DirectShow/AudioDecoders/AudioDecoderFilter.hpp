@@ -184,7 +184,10 @@ namespace LibISDB::DirectShow
 		size_t MonoToStereo(int16_t *pDst, const int16_t *pSrc, size_t Samples);
 		size_t DownMixStereo(int16_t *pDst, const int16_t *pSrc, size_t Samples);
 		size_t DownMixSurround(int16_t *pDst, const int16_t *pSrc, size_t Samples);
+		size_t DownMix4Channels(int16_t* pDst, const int16_t* pSrc, size_t Samples);
 		size_t MapSurroundChannels(int16_t *pDst, const int16_t *pSrc, size_t Samples);
+		size_t Map4Channels(int16_t* pDst, const int16_t* pSrc, size_t Samples);
+
 		void GainControl(int16_t *pBuffer, size_t Samples, float Gain);
 		void SelectDualMonoStereoMode();
 		AudioDecoder * CreateDecoder(DecoderType Type);

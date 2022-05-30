@@ -726,7 +726,7 @@ HRESULT AudioDecoderFilter::OnFrame(
 	const AudioDecoder::AudioInfo &Info,
 	FrameSampleInfo *pSampleInfo)
 {
-	if (Info.ChannelCount != 1 && Info.ChannelCount != 2 && Info.ChannelCount != 6)
+	if (Info.ChannelCount != 1 && Info.ChannelCount != 2 && Info.ChannelCount != 6 && Info.ChannelCount != 4)
 		return E_FAIL;
 
 	const bool DualMono = (Info.ChannelCount == 2 && Info.DualMono);
@@ -783,8 +783,8 @@ HRESULT AudioDecoderFilter::ProcessPCM(
 	const AudioDecoder::AudioInfo &Info,
 	FrameSampleInfo *pSampleInfo)
 {
-	const bool Surround = (Info.ChannelCount == 6 && !m_DownMixSurround);
-	const int OutChannels = Surround ? 6 : 2;
+	const bool Surround = (Info.ChannelCount > 2 && !m_DownMixSurround);
+	const int OutChannels = Surround ? Info.ChannelCount : 2;
 
 	// メディアタイプの更新
 	bool MediaTypeChanged = false;
@@ -809,12 +809,18 @@ HRESULT AudioDecoderFilter::ProcessPCM(
 		} else {
 			WAVEFORMATEXTENSIBLE *pExtensible = reinterpret_cast<WAVEFORMATEXTENSIBLE *>(pwfx);
 			pExtensible->Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
-			pExtensible->Format.nChannels = 6;
+			pExtensible->Format.nChannels = OutChannels;
 			pExtensible->Format.cbSize  = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);
-			pExtensible->dwChannelMask =
-				SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT |
-				SPEAKER_FRONT_CENTER | SPEAKER_LOW_FREQUENCY |
-				SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT;
+			if (pExtensible->Format.nChannels == 6) {
+				pExtensible->dwChannelMask =
+						SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT |
+						SPEAKER_FRONT_CENTER | SPEAKER_LOW_FREQUENCY |
+						SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT;
+			} else if (pExtensible->Format.nChannels == 4) {
+				 pExtensible->dwChannelMask =
+						SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT |
+						SPEAKER_FRONT_CENTER | SPEAKER_LOW_FREQUENCY;
+			}
 			pExtensible->Samples.wValidBitsPerSample = 16;
 			pExtensible->SubFormat = MEDIASUBTYPE_PCM;
 		}
@@ -850,6 +856,21 @@ HRESULT AudioDecoderFilter::ProcessPCM(
 				reinterpret_cast<int16_t *>(pOutBuff),
 				reinterpret_cast<const int16_t *>(pData),
 				Samples);
+			break;
+
+		case 4:
+			if (Surround) {
+				OutSize = Map4Channels(
+					reinterpret_cast<int16_t*>(pOutBuff),
+					reinterpret_cast<const int16_t*>(pData),
+					Samples);
+			}
+			else {
+				OutSize = DownMix4Channels(
+					reinterpret_cast<int16_t*>(pOutBuff),
+					reinterpret_cast<const int16_t*>(pData),
+					Samples);
+			}
 			break;
 
 		case 6:
@@ -1253,6 +1274,57 @@ size_t AudioDecoderFilter::DownMixSurround(int16_t *pDst, const int16_t *pSrc, s
 	return Samples * (sizeof(int16_t) * 2);
 }
 
+size_t AudioDecoderFilter::DownMix4Channels(int16_t* pDst, const int16_t* pSrc, size_t Samples)
+{
+	// 4ch → 2ch ダウンミックス
+
+	const double Level = m_GainControl ? m_SurroundGain : 1.0;
+	int ChannelMap[4];
+
+	if (!m_Decoder->GetChannelMap(4, ChannelMap)) {
+		for (int i = 0; i < 4; i++)
+			ChannelMap[i] = i;
+	}
+
+	if (m_EnableCustomDownMixMatrix) {
+		// カスタムマトリックスを使用
+		for (size_t Pos = 0; Pos < Samples; Pos++) {
+			double Data[4];
+
+			for (int i = 0; i < 4; i++)
+				Data[i] = static_cast<double>(pSrc[Pos * 4 + ChannelMap[i]]);
+
+			for (int i = 0; i < 2; i++) {
+				int Value = static_cast<int>((
+					Data[0] * m_DownMixMatrix.Matrix[i][0] +
+					Data[1] * m_DownMixMatrix.Matrix[i][1] +
+					Data[2] * m_DownMixMatrix.Matrix[i][2] +
+					Data[3] * m_DownMixMatrix.Matrix[i][3]
+					) * Level);
+				pDst[Pos * 2 + i] = ClampSample16(Value);
+			}
+		}
+	}
+	else {
+		// デフォルトの係数を使用
+		AudioDecoder::DownmixInfo Info;
+		m_Decoder->GetDownmixInfo(&Info);
+
+		for (size_t Pos = 0; Pos < Samples; Pos++) {
+			int Left = static_cast<int>(
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_L]]) * Level);
+
+			int Right = static_cast<int>(
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_R]]) * Level);
+
+			pDst[Pos * 2 + 0] = ClampSample16(Left);
+			pDst[Pos * 2 + 1] = ClampSample16(Right);
+		}
+	}
+
+	// バッファサイズを返す
+	return Samples * (sizeof(int16_t) * 2);
+}
 
 size_t AudioDecoderFilter::MapSurroundChannels(int16_t *pDst, const int16_t *pSrc, size_t Samples)
 {
@@ -1303,6 +1375,52 @@ size_t AudioDecoderFilter::MapSurroundChannels(int16_t *pDst, const int16_t *pSr
 	return Samples * (sizeof(int16_t) * 6);
 }
 
+size_t AudioDecoderFilter::Map4Channels(int16_t* pDst, const int16_t* pSrc, size_t Samples)
+{
+	if (m_EnableCustomMixingMatrix) {
+		// カスタムマトリックスを使用
+		int ChannelMap[4];
+
+		if (!m_Decoder->GetChannelMap(4, ChannelMap)) {
+			for (int i = 0; i < 4; i++)
+				ChannelMap[i] = i;
+		}
+
+		for (size_t i = 0; i < Samples; i++) {
+			double Data[4];
+
+			for (int j = 0; j < 4; j++)
+				Data[j] = static_cast<double>(pSrc[i * 4 + ChannelMap[j]]);
+
+			for (int j = 0; j < 4; j++) {
+				int Value = static_cast<int>(
+					Data[0] * m_MixingMatrix.Matrix[j][0] +
+					Data[1] * m_MixingMatrix.Matrix[j][1] +
+					Data[2] * m_MixingMatrix.Matrix[j][2] +
+					Data[3] * m_MixingMatrix.Matrix[j][3]);
+				pDst[i * 4 + j] = ClampSample16(Value);
+			}
+		}
+	}
+	else {
+		// デフォルトの割り当てを使用
+		int ChannelMap[4];
+
+		if (m_Decoder->GetChannelMap(4, ChannelMap)) {
+			for (size_t i = 0; i < Samples; i++) {
+				pDst[i * 4 + 0] = pSrc[i * 4 + ChannelMap[AudioDecoder::CHANNEL_4_L]];
+				pDst[i * 4 + 1] = pSrc[i * 4 + ChannelMap[AudioDecoder::CHANNEL_4_R]];
+				pDst[i * 4 + 2] = pSrc[i * 4 + ChannelMap[AudioDecoder::CHANNEL_4_C]];
+				pDst[i * 4 + 3] = pSrc[i * 4 + ChannelMap[AudioDecoder::CHANNEL_4_MS]];
+			}
+		}
+		else {
+			std::memcpy(pDst, pSrc, Samples * 4 * sizeof(int16_t));
+		}
+	}
+
+	return Samples * (sizeof(int16_t) * 4);
+}
 
 void AudioDecoderFilter::GainControl(int16_t *pBuffer, size_t Samples, float Gain)
 {
