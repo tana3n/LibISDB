@@ -783,7 +783,7 @@ HRESULT AudioDecoderFilter::ProcessPCM(
 	const AudioDecoder::AudioInfo &Info,
 	FrameSampleInfo *pSampleInfo)
 {
-	const bool Surround = (Info.ChannelCount > 2 && !m_DownMixSurround);
+	const bool Surround = (Info.ChannelCount == 6 && !m_DownMixSurround);
 	const int OutChannels = Surround ? Info.ChannelCount : 2;
 
 	// メディアタイプの更新
@@ -859,18 +859,18 @@ HRESULT AudioDecoderFilter::ProcessPCM(
 			break;
 
 		case 4:
-			if (Surround) {
+			/*if (Surround) {
 				OutSize = Map4Channels(
 					reinterpret_cast<int16_t*>(pOutBuff),
 					reinterpret_cast<const int16_t*>(pData),
 					Samples);
 			}
-			else {
+			else {*/
 				OutSize = DownMix4Channels(
 					reinterpret_cast<int16_t*>(pOutBuff),
 					reinterpret_cast<const int16_t*>(pData),
 					Samples);
-			}
+			//}
 			break;
 
 		case 6:
@@ -1285,42 +1285,26 @@ size_t AudioDecoderFilter::DownMix4Channels(int16_t* pDst, const int16_t* pSrc, 
 		for (int i = 0; i < 4; i++)
 			ChannelMap[i] = i;
 	}
-
-	if (m_EnableCustomDownMixMatrix) {
-		// カスタムマトリックスを使用
-		for (size_t Pos = 0; Pos < Samples; Pos++) {
-			double Data[4];
-
-			for (int i = 0; i < 4; i++)
-				Data[i] = static_cast<double>(pSrc[Pos * 4 + ChannelMap[i]]);
-
-			for (int i = 0; i < 2; i++) {
-				int Value = static_cast<int>((
-					Data[0] * m_DownMixMatrix.Matrix[i][0] +
-					Data[1] * m_DownMixMatrix.Matrix[i][1] +
-					Data[2] * m_DownMixMatrix.Matrix[i][2] +
-					Data[3] * m_DownMixMatrix.Matrix[i][3]
-					) * Level);
-				pDst[Pos * 2 + i] = ClampSample16(Value);
-			}
-		}
-	}
-	else {
 		// デフォルトの係数を使用
 		AudioDecoder::DownmixInfo Info;
 		m_Decoder->GetDownmixInfo(&Info);
 
 		for (size_t Pos = 0; Pos < Samples; Pos++) {
-			int Left = static_cast<int>(
-				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_L]]) * Level);
+			int Left = static_cast<int>((
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_L]]) * Info.Front + 
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_C]]) * Info.Center +
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_MS]]) * Info.Rear
+				)* Level);
 
-			int Right = static_cast<int>(
-				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_R]]) * Level);
+			int Right = static_cast<int>((
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_R]]) * Info.Front +
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_C]]) * Info.Center +
+				static_cast<double>(pSrc[Pos * 4 + ChannelMap[AudioDecoder::CHANNEL_4_MS]]) * Info.Rear
+				) * Level);
 
 			pDst[Pos * 2 + 0] = ClampSample16(Left);
 			pDst[Pos * 2 + 1] = ClampSample16(Right);
 		}
-	}
 
 	// バッファサイズを返す
 	return Samples * (sizeof(int16_t) * 2);
