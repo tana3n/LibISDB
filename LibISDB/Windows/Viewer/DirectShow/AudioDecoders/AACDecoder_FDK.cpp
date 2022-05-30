@@ -90,7 +90,7 @@ bool AACDecoder_FDK::GetChannelMap(int Channels, int *pMap) const
 		pMap[CHANNEL_4_L]   = 0;
 		pMap[CHANNEL_4_R]   = 1;
 		pMap[CHANNEL_4_C]   = 2;
-		pMap[CHANNEL_4_LFE] = 3;
+		pMap[CHANNEL_4_MS] = 3;
 		break;
 	case 6:
 		pMap[CHANNEL_6_FL]  = 0;
