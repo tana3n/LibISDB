@@ -533,9 +533,6 @@
     <ClCompile Include="..\Thirdparty\fdk-aac\libSBRdec\src\pvc_dec.cpp">
       <Filter>libSBRdec\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Thirdparty\fdk-aac\libSBRdec\src\sbr_crc.cpp">
-      <Filter>libSBRdec\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Thirdparty\fdk-aac\libSBRdec\src\sbr_dec.cpp">
       <Filter>libSBRdec\Source Files</Filter>
     </ClCompile>
@@ -1007,9 +1004,6 @@
       <Filter>libSBRdec\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Thirdparty\fdk-aac\libSBRdec\src\pvc_dec.h">
-      <Filter>libSBRdec\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Thirdparty\fdk-aac\libSBRdec\src\sbr_crc.h">
       <Filter>libSBRdec\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Thirdparty\fdk-aac\libSBRdec\src\sbr_deb.h">
