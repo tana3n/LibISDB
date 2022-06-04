@@ -37,41 +37,41 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_MD|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_MD|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -140,6 +140,10 @@
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)..\Thirdparty\faad2_config.h $(SolutionDir)..\Thirdparty\faad2\config.h
+$(SolutionDir)..\Thirdparty\faad2\utils\win32\ac2ver.exe faad2  $(SolutionDir)..\Thirdparty\faad2\configure.ac &gt;&gt;  $(SolutionDir)..\Thirdparty\faad2\libfaad\win32_ver.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_MD|Win32'">
     <ClCompile>
@@ -174,6 +178,10 @@
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)..\Thirdparty\faad2_config.h $(SolutionDir)..\Thirdparty\faad2\config.h
+$(SolutionDir)..\Thirdparty\faad2\utils\win32\ac2ver.exe faad2  $(SolutionDir)..\Thirdparty\faad2\configure.ac &gt;&gt;  $(SolutionDir)..\Thirdparty\faad2\libfaad\win32_ver.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -211,6 +219,10 @@
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)..\Thirdparty\faad2_config.h $(SolutionDir)..\Thirdparty\faad2\config.h
+$(SolutionDir)..\Thirdparty\faad2\utils\win32\ac2ver.exe faad2  $(SolutionDir)..\Thirdparty\faad2\configure.ac &gt;&gt;  $(SolutionDir)..\Thirdparty\faad2\libfaad\win32_ver.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_MD|x64'">
     <Midl>
@@ -248,6 +260,10 @@
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)..\Thirdparty\faad2_config.h $(SolutionDir)..\Thirdparty\faad2\config.h
+$(SolutionDir)..\Thirdparty\faad2\utils\win32\ac2ver.exe faad2  $(SolutionDir)..\Thirdparty\faad2\configure.ac &gt;&gt;  $(SolutionDir)..\Thirdparty\faad2\libfaad\win32_ver.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -279,6 +295,10 @@
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)..\Thirdparty\faad2_config.h $(SolutionDir)..\Thirdparty\faad2\config.h
+$(SolutionDir)..\Thirdparty\faad2\utils\win32\ac2ver.exe faad2  $(SolutionDir)..\Thirdparty\faad2\configure.ac &gt;&gt;  $(SolutionDir)..\Thirdparty\faad2\libfaad\win32_ver.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -313,6 +333,10 @@
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)..\Thirdparty\faad2_config.h $(SolutionDir)..\Thirdparty\faad2\config.h
+$(SolutionDir)..\Thirdparty\faad2\utils\win32\ac2ver.exe faad2  $(SolutionDir)..\Thirdparty\faad2\configure.ac &gt;&gt;  $(SolutionDir)..\Thirdparty\faad2\libfaad\win32_ver.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Thirdparty\faad2\libfaad\bits.c" />
